@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 For support, questions, suggestions or any other inquiries, visit:
 http://wiki.github.com/Freeseer/freeseer/
 
-@author: Thanh Ha
 @author: Olivier Gauthier
 '''
 
@@ -40,15 +39,9 @@ class RTSPVideoSrc(IVideoInput):
     
     # variables
     url = "rtsp://127.0.0.1:8554/"
-    #pattern = "smpte"
-    
-    # Patterns
-    #PATTERNS = ["smpte", "snow", "black", "white", "red", "green", "blue",
-    #            "circular", "blink", "smpte75", "zone-plate", "gamut",
-    #            "chroma-zone-plate", "ball", "smpte100", "bar"]
-    
+
+    # Callback used by "pad-added" signal
     def on_pad_added(self, element, pad, data):
-        #sinkpad = data.get_pad("sink")
         element.link(data)
     
     def get_videoinput_bin(self):
@@ -67,7 +60,6 @@ class RTSPVideoSrc(IVideoInput):
         bin.add(colorspace)
         
         # Link elements
-        #videosrc.link(demux)
         demux.link(decoder)
         decoder.link(colorspace)
 
@@ -86,12 +78,9 @@ class RTSPVideoSrc(IVideoInput):
         self.plugman = plugman
         
         try:
-            #live = self.plugman.get_plugin_option(self.CATEGORY, self.get_config_name(), "Live")
-            #if live == "True": self.live = True
             self.url = self.plugman.get_plugin_option(self.CATEGORY, self.get_config_name(), "Url")
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             self.plugman.set_plugin_option(self.CATEGORY, self.get_config_name(), "Url", self.url)
-            #self.plugman.set_plugin_option(self.CATEGORY, self.get_config_name(), "Pattern", self.pattern)
         except TypeError:
             # Temp fix for issue where reading checkbox the 2nd time causes TypeError.
             pass
@@ -106,10 +95,6 @@ class RTSPVideoSrc(IVideoInput):
             #
             # Settings
             #
-            
-            #self.liveCheckBox = QtGui.QCheckBox("Live Source")
-            #layout.addWidget(self.liveCheckBox)
-            
             formWidget = QtGui.QWidget()
             formLayout = QtGui.QFormLayout()
             formWidget.setLayout(formLayout)
@@ -118,12 +103,10 @@ class RTSPVideoSrc(IVideoInput):
             self.urlLabel = QtGui.QLabel("RTSP url:")
             self.urlLineEdit = QtGui.QLineEdit()
             self.urlLabel.setBuddy(self.urlLineEdit)
-            #for i in self.PATTERNS:
-            #    self.patternComboBox.addItem(i)
             
             formLayout.addRow(self.urlLabel, self.urlLineEdit)
             
-            #self.widget.connect(self.patternComboBox, QtCore.SIGNAL('currentIndexChanged(const QString&)'), self.set_pattern)
+            self.widget.connect(self.urlLineEdit, QtCore.SIGNAL('textEdited (const QString &)'), self.set_url)
             
         return self.widget
 
@@ -143,19 +126,10 @@ class RTSPVideoSrc(IVideoInput):
     def get_property_value(self, property):
         if property == 'Url':
             return self.url
-        #elif property == 'Pattern':
-        #    return self.pattern
         else:
             return "There's no property with such name"
         
     def set_property_value(self, property, value):
-        #if property == 'Live':
-        #    if(value == "ON"):                
-        #        self.set_live(True)
-        #    elif(value == "OFF"):
-        #        self.set_live(False)
-        #   else:
-        #       return "Please choose one of the acceptable variable values: ON or OFF"
         if property == "Url":
             self.set_url(value)            
         else:
