@@ -1,0 +1,9 @@
+[Core]
+Name = RTSP video source
+Module = rtspvideosrc
+
+[Documentation]
+Author = Olivier Gauthier
+Version = 0.1
+Website = http://fosslc.org
+Description = Capture RTSP stream from network
