@@ -47,6 +47,10 @@ class RTSPVideoSrc(IVideoInput):
     #            "circular", "blink", "smpte75", "zone-plate", "gamut",
     #            "chroma-zone-plate", "ball", "smpte100", "bar"]
     
+    def on_pad_added(self, element, pad, data):
+        #sinkpad = data.get_pad("sink")
+        element.link(data)
+    
     def get_videoinput_bin(self):
         bin = gst.Bin() # Do not pass a name so that we can load this input more than once.
                 
@@ -63,16 +67,20 @@ class RTSPVideoSrc(IVideoInput):
         bin.add(colorspace)
         
         # Link elements
-        videosrc.link(demux)
+        #videosrc.link(demux)
         demux.link(decoder)
         decoder.link(colorspace)
 
+        # Link videosrc to demux
+        videosrc.connect("pad-added", self.on_pad_added, demux)
+    
         # Setup ghost pad
         pad = colorspace.get_pad("src")
         ghostpad = gst.GhostPad("videosrc", pad)
         bin.add_pad(ghostpad)
         
         return bin
+
     
     def load_config(self, plugman):
         self.plugman = plugman
@@ -152,3 +160,5 @@ class RTSPVideoSrc(IVideoInput):
             self.set_url(value)            
         else:
             return "Error: There's no property with such name" 
+        
+
